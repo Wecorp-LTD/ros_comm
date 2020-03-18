@@ -68,6 +68,7 @@ rosbag::RecorderOptions parseOptions(int argc, char** argv) {
       ("size", po::value<uint64_t>(), "The maximum size of the bag to record in MB.")
       ("duration", po::value<std::string>(), "Record a bag of maximum duration in seconds, unless 'm', or 'h' is appended.")
       ("node", po::value<std::string>(), "Record all topics subscribed to by a specific node.")
+      ("file", po::value<std::string>(), "Record all topics subscribed to by a specific file.")
       ("tcpnodelay", "Use the TCP_NODELAY transport hint when subscribing to topics.")
       ("udp", "Use the UDP transport hint when subscribing to topics.");
 
@@ -273,6 +274,29 @@ rosbag::RecorderOptions parseOptions(int argc, char** argv) {
         opts.record_all = true;
     }
 
+    if (vm.count("file"))
+    {
+      opts.fname = vm["file"].as<std::string>();
+      if (opts.fname.c_str())
+      {
+         std::string topic;
+	 std::vector<std::string> bags;
+	 std::ifstream topic_file(opts.fname.c_str());
+	 while (std::getline(topic_file, topic))
+	 {
+		 // ROS topic size check
+		 if (topic.size() > 0 && topic.size() < 256)
+			 bags.push_back(topic);
+         }
+         std::sort(bags.begin(), bags.end());
+         bags.erase(std::unique(bags.begin(), bags.end()), bags.end());
+         for (std::vector<std::string>::iterator i = bags.begin();
+              i != bags.end();
+              i++)
+            opts.topics.push_back(*i);
+         std::cout << "Recording topics from the file: " << opts.fname << std::endl;
+      }
+    }
     return opts;
 }
 

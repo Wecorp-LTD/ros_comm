@@ -110,7 +110,8 @@ RecorderOptions::RecorderOptions() :
     max_duration(-1.0),
     node(""),
     min_space(1024 * 1024 * 1024),
-    min_space_str("1G")
+    min_space_str("1G"),
+    fname("")
 {
 }
 
